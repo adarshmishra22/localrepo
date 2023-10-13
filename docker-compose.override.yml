@@ -1,0 +1,43 @@
+services:
+  php:
+    image: wodby/drupal:$DRUPAL_TAG
+    environment:
+      PHP_FPM_CLEAR_ENV: "no"
+    volumes:
+    - ./code:/var/www/html
+
+  crond:
+    image: wodby/drupal:$DRUPAL_TAG
+    environment:
+      PHP_FPM_CLEAR_ENV: "no"
+    volumes:
+    - ./code:/var/www/html
+
+  mariadb:
+    volumes:
+      - ./db:/var/lib/mysql # I want to manage volumes manually.
+
+  pma:
+    image: phpmyadmin/phpmyadmin
+    container_name: "${PROJECT_NAME}_pma"
+    environment:
+      PMA_HOST: $DB_HOST
+      PMA_USER: $DB_USER
+      PMA_PASSWORD: $DB_PASSWORD
+      PHP_UPLOAD_MAX_FILESIZE: 1G
+      PHP_MAX_INPUT_VARS: 1G
+    labels:
+      - 'traefik.backend=pma'
+      - 'traefik.port=80'
+      - 'traefik.frontend.rule=Host:pma.${PROJECT_BASE_URL}'
+
+  nginx:
+    volumes:
+    - ./code:/var/www/html
+
+#  webgrind:
+#    volumes:
+#    - codebase:/mnt/codebase
+
+volumes:
+  codebase:
