@@ -1,21 +1,12 @@
+version: "3"
+
 services:
   php:
-    image: wodby/drupal:$DRUPAL_TAG
+    image: wodby/drupal-php:$PHP_TAG
     environment:
       PHP_FPM_CLEAR_ENV: "no"
     volumes:
-    - ./code:/var/www/html
-
-  crond:
-    image: wodby/drupal:$DRUPAL_TAG
-    environment:
-      PHP_FPM_CLEAR_ENV: "no"
-    volumes:
-    - ./code:/var/www/html
-
-  mariadb:
-    volumes:
-      - ./db:/var/lib/mysql # I want to manage volumes manually.
+      - ./code:/var/www/html
 
   pma:
     image: phpmyadmin/phpmyadmin
@@ -30,14 +21,29 @@ services:
       - 'traefik.backend=pma'
       - 'traefik.port=80'
       - 'traefik.frontend.rule=Host:pma.${PROJECT_BASE_URL}'
+      
+#  elasticsearch:
+#    image: docker.elastic.co/elasticsearch/elasticsearch:6.6.2
+#    environment:
+#      - cluster.name=docker-cluster
+#      - bootstrap.memory_lock=false
+#      - xpack.security.enabled=false
+#      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+#    mem_limit: 1g
+#    ports:
+#        - "9200:9200"
+#    labels:
+#      - 'traefik.backend=es'
+#      - 'traefik.port=9200'
+#      - 'traefik.frontend.rule=Host:es.${PROJECT_BASE_URL}'
+
+  mariadb:
+    volumes:
+      - ./db:/var/lib/mysql # I want to manage volumes manually.
 
   nginx:
     volumes:
-    - ./code:/var/www/html
-
-#  webgrind:
-#    volumes:
-#    - codebase:/mnt/codebase
+      - ./code:/var/www/html
 
 volumes:
   codebase:
